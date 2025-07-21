@@ -1597,30 +1597,39 @@ def api_video_formats():
                         formats_by_res[label].append(f)
                     elif key == f.get('format_note', '').lower():
                         formats_by_res[label].append(f)
-        # For each label, pick the best format (largest filesize or bitrate)
+        # For each label, collect all formats (not just best)
         formats = []
         for label, flist in formats_by_res.items():
-            if not flist:
-                continue
-            # Prefer largest filesize, then highest tbr (bitrate)
-            best = max(flist, key=lambda x: (x.get('filesize') or 0, x.get('tbr') or 0))
-            formats.append({
-                'format_id': best.get('format_id'),
-                'ext': best.get('ext'),
-                'resolution': label,  # always use the p-style label
-                'format_note': best.get('format_note'),
-                'filesize': best.get('filesize') or best.get('filesize_approx'),
-            })
+            for fmt in flist:
+                # Determine if format is video-only (no audio)
+                video_only = False
+                if fmt.get('acodec') in (None, 'none', '') or fmt.get('audio_channels') in (None, 0, '0', ''):
+                    video_only = True
+                formats.append({
+                    'format_id': fmt.get('format_id'),
+                    'ext': fmt.get('ext'),
+                    'resolution': label,  # always use the p-style label
+                    'format_note': fmt.get('format_note'),
+                    'filesize': fmt.get('filesize') or fmt.get('filesize_approx'),
+                    'video_only': video_only
+                })
+        # Remove duplicates (same format_id)
+        seen = set()
+        unique_formats = []
+        for f in formats:
+            if f['format_id'] not in seen:
+                unique_formats.append(f)
+                seen.add(f['format_id'])
         # Sort by resolution order
         label_order = list(resolution_map.keys())
-        formats.sort(key=lambda x: label_order.index(x['resolution']))
+        unique_formats.sort(key=lambda x: label_order.index(x['resolution']) if x['resolution'] in label_order else 999)
         # Add video info: title, thumbnail, duration
         video_info = {
             'title': info.get('title', ''),
             'thumbnail': info.get('thumbnail', ''),
             'duration': info.get('duration', 0)
         }
-        return jsonify({'formats': formats, **video_info})
+        return jsonify({'formats': unique_formats, **video_info})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -1631,20 +1640,34 @@ def api_video_download():
     if not url or not format_id:
         return 'Missing parameters', 400
     try:
-        # First, get the video title using yt-dlp
-        try:
-            ydl_opts = {'quiet': True, 'skip_download': True, 'forcejson': True, 'extract_flat': False}
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                title = info.get('title', 'video')
-        except Exception:
-            title = 'video'
+        # Get video info to check if selected format is video-only
+        ydl_opts = {'quiet': True, 'skip_download': True, 'forcejson': True, 'extract_flat': False}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            formats = info.get('formats', [])
+            selected_fmt = next((f for f in formats if str(f.get('format_id')) == str(format_id)), None)
+            title = info.get('title', 'video')
         safe_title = ''.join(c for c in title if c.isalnum() or c in (' ', '.', '_', '-')).rstrip()
         filename = f"{safe_title}.mp4"
-        # Use yt-dlp to stream video directly to client (no temp file)
+        # If selected format is video-only, find best audio
+        if selected_fmt and (selected_fmt.get('acodec') in (None, 'none', '') or selected_fmt.get('audio_channels') in (None, 0, '0', '')):
+            # Find best audio-only format
+            audio_fmt = None
+            audio_candidates = [f for f in formats if f.get('vcodec') in (None, 'none', '') and f.get('acodec') not in (None, 'none', '')]
+            if audio_candidates:
+                # Prefer highest bitrate
+                audio_fmt = max(audio_candidates, key=lambda x: x.get('abr') or 0)
+            if audio_fmt:
+                # Use yt-dlp to merge video+audio
+                merge_format = f"{format_id}+{audio_fmt['format_id']}"
+            else:
+                merge_format = format_id  # fallback, no audio found
+        else:
+            merge_format = format_id
+        # Use yt-dlp to stream merged video+audio to client
         cmd = [
             'yt-dlp',
-            '-f', format_id,
+            '-f', merge_format,
             '-o', '-',  # output to stdout
             url
         ]

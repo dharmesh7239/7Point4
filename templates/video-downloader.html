@@ -221,13 +221,47 @@ document.getElementById('video-fetch-form').onsubmit = async function(e) {
     titleDiv.textContent = data.title || '';
     durationDiv.textContent = formatDuration(data.duration);
     formatSelect.innerHTML = '';
+    // Define all standard resolutions
+    const standardResolutions = ['144p', '240p', '360p', '480p', '720p', '1080p', '2160p'];
+    // Map available formats by resolution
+    const availableByRes = {};
     data.formats.forEach(fmt => {
-      const sizeMB = fmt.filesize ? (Math.round(fmt.filesize/1024/1024*10)/10)+' MB' : '?';
-      const opt = document.createElement('option');
-      opt.value = fmt.format_id;
-      opt.textContent = `${fmt.resolution}.mp4 (${sizeMB})`;
-      formatSelect.appendChild(opt);
+      if (!availableByRes[fmt.resolution]) availableByRes[fmt.resolution] = [];
+      availableByRes[fmt.resolution].push(fmt);
     });
+    // Build dropdown: all standard resolutions, disable if not available
+    standardResolutions.forEach(res => {
+      let fmts = availableByRes[res] || [];
+      if (fmts.length > 0) {
+        fmts.forEach(fmt => {
+          const sizeMB = fmt.filesize ? (Math.round(fmt.filesize/1024/1024*10)/10)+' MB' : '?';
+          const opt = document.createElement('option');
+          opt.value = fmt.format_id;
+          opt.textContent = `${res}.mp4 (${sizeMB})` + (fmt.video_only ? ' [Video Only - No Audio]' : '');
+          if (fmt.video_only) opt.style.color = '#ff6b6b';
+          formatSelect.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = `${res} (Not available)`;
+        opt.disabled = true;
+        opt.style.color = '#888';
+        formatSelect.appendChild(opt);
+      }
+    });
+    // Show a warning if any video-only formats are present
+    let hasVideoOnly = data.formats.some(fmt => fmt.video_only);
+    let warnDiv = document.getElementById('video-only-warning');
+    if (!warnDiv) {
+      warnDiv = document.createElement('div');
+      warnDiv.id = 'video-only-warning';
+      warnDiv.style = 'color:#ff6b6b;font-size:0.98rem;margin-bottom:0.7rem;';
+      formatSelect.parentNode.insertBefore(warnDiv, formatSelect.nextSibling);
+    }
+    warnDiv.style.display = hasVideoOnly ? 'block' : 'none';
+    warnDiv.textContent = hasVideoOnly ? '⚠️ Some formats are video-only and will not have sound.' : '';
+
     document.getElementById('video-download-btn').onclick = async () => {
       const selectedId = formatSelect.value;
       if (!selectedId) return;
