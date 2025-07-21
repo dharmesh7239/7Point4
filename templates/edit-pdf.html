@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Edit PDF - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="pdf-editor-outer">
+  <div class="pdf-upload-area" id="pdf-upload-area">
+    <input type="file" id="fileInput" accept=".pdf" style="display:none;">
+    <div class="upload-panel" onclick="document.getElementById('fileInput').click()">
+      <i class="fas fa-file-upload"></i>
+      <span class="upload-title">Drag & drop PDF here or <span class="choose-file">Choose File</span></span>
+      <span class="upload-sub">Supports: PDF files up to 50MB</span>
+    </div>
+  </div>
+</div>
+
+<!-- Move modal and overlay outside main container -->
+<div id="pdf-modal-overlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.75);z-index:1000;"></div>
+<div id="pdf-editor-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;width:90vw;max-width:1000px;height:90vh;max-height:800px;background:#181c24;border-radius:18px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.28);padding:0;overflow:hidden;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem 0.5rem 1.5rem;background:rgba(0,0,0,0.12);border-radius:18px 18px 0 0;">
+    <span style="font-size:1.2rem;font-weight:600;color:#00d4ff;">Edit PDF</span>
+    <button id="close-pdf-modal" style="background:none;border:none;font-size:1.5rem;color:#fff;cursor:pointer;">&times;</button>
+  </div>
+  <div id="pdfjs-express-viewer" class="pdf-viewer" style="height:calc(100% - 110px);min-height:500px;min-width:300px;margin:0 1.5rem 0 1.5rem;background:#222;"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:0.7rem 1.5rem 1.2rem 1.5rem;background:rgba(0,0,0,0.10);">
+    <div style="color:#00d4ff;font-size:1.05rem;">Tip: Use the toolbar above to add/edit text, images, highlights, shapes, and more.</div>
+    <button class="btn download-btn" id="download-pdf-btn"><i class="fas fa-download"></i> Download</button>
+  </div>
+  <div id="pdf-error-message" style="display:none;color:#ff4444;font-weight:600;margin:1rem 0 0 0;text-align:center;"></div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.apryse.com/webviewer/10.8.0/webviewer.min.css" />
+<script src="https://cdn.apryse.com/webviewer/10.8.0/webviewer.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Hide inline editor panel
+  var panel = document.getElementById('pdf-editor-panel');
+  if(panel) panel.style.display = 'none';
+
+  const fileInput = document.getElementById('fileInput');
+  const uploadArea = document.getElementById('pdf-upload-area');
+  const modal = document.getElementById('pdf-editor-modal');
+  const overlay = document.getElementById('pdf-modal-overlay');
+  const closeModalBtn = document.getElementById('close-pdf-modal');
+  const errorDiv = document.getElementById('pdf-error-message');
+  const viewerDiv = document.getElementById('pdfjs-express-viewer');
+
+  // Drag & drop
+  uploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+  });
+  uploadArea.addEventListener('dragleave', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+  });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      fileInput.files = e.dataTransfer.files;
+      handlePDFUpload(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', function(e) {
+    if (fileInput.files.length) {
+      handlePDFUpload(fileInput.files[0]);
+    }
+  });
+
+  function openModal() {
+    overlay.style.display = 'block';
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    console.log('Modal opened');
+  }
+  function closeModal() {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    setTimeout(() => { viewerDiv.innerHTML = ''; }, 300); // clear after close
+    console.log('Modal closed');
+  }
+  closeModalBtn.onclick = closeModal;
+  overlay.onclick = closeModal;
+
+  function handlePDFUpload(file) {
+    if (!file || file.type !== 'application/pdf') {
+      alert('Please select a valid PDF file.');
+      return;
+    }
+    uploadArea.style.display = 'none';
+    errorDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    openModal();
+    // Do NOT clear viewerDiv here
+    const url = URL.createObjectURL(file);
+    console.log('Initializing WebViewer with PDF:', url);
+    WebViewer({
+      path: 'https://cdn.apryse.com/webviewer/10.8.0',
+      initialDoc: url,
+      licenseKey: '',
+      fullAPI: true,
+      enableAnnotations: true,
+      enableMeasurement: true,
+    }, viewerDiv).then(instance => {
+      instance.UI.enableElements([
+        'toolbarGroup-Annotate',
+        'toolbarGroup-Edit',
+        'toolbarGroup-Insert',
+        'toolbarGroup-Forms',
+        'toolbarGroup-Shapes',
+        'toolbarGroup-Text',
+        'toolbarGroup-View',
+        'toolbarGroup-Measure',
+      ]);
+      document.getElementById('download-pdf-btn').onclick = function() {
+        instance.UI.downloadPdf();
+      };
+      console.log('WebViewer initialized.');
+    }).catch(err => {
+      console.error('WebViewer failed to initialize:', err);
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = 'PDF Editor failed to load. Please check your internet connection or try a different PDF file.';
+    });
+  }
+});
+</script>
+<style>
+.pdf-editor-outer {
+  max-width: 900px;
+  margin: 2rem auto 3rem auto;
+  background: rgba(255,255,255,0.04);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 2.5rem 1.5rem 2rem 1.5rem;
+}
+.pdf-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+  border: 2.5px dashed #00d4ff;
+  border-radius: 18px;
+  background: rgba(0,212,255,0.07);
+  transition: border 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.pdf-upload-area.dragover {
+  border: 2.5px solid #00d4ff;
+  background: rgba(0,212,255,0.13);
+}
+.upload-panel {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+.upload-panel i {
+  font-size: 3.5rem;
+  color: #00d4ff;
+  margin-bottom: 1.2rem;
+}
+.upload-title {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.7rem;
+}
+.choose-file {
+  color: #00d4ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.upload-sub {
+  color: #b0b0b0;
+  font-size: 1rem;
+}
+.pdf-editor-panel {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pdf-viewer {
+  width: 100%;
+  height: 700px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
+  background: #181c24;
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+}
+.pdf-toolbar-tip {
+  margin-bottom: 1.2rem;
+  color: #00d4ff;
+  font-size: 1.05rem;
+  text-align: left;
+  width: 100%;
+}
+.download-btn {
+  background: linear-gradient(90deg, #00d4ff 0%, #0077ff 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 2.2rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px 0 rgba(0,212,255,0.13);
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-bottom: 0.5rem;
+}
+.download-btn:hover {
+  background: linear-gradient(90deg, #0077ff 0%, #00d4ff 100%);
+  box-shadow: 0 4px 16px 0 rgba(0,212,255,0.18);
+}
+@media (max-width: 700px) {
+  .pdf-editor-outer { padding: 1rem 0.2rem; }
+  .pdf-viewer { height: 420px; }
+  .upload-panel { padding: 1.2rem 0.2rem; }
+}
+</style>
+{% endblock %} 

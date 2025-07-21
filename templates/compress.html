@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+
+{% block title %}Compress Images - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">Compress Images</h1>
+        <p class="hero-subtitle">Reduce image file size while maintaining quality. Perfect for web optimization and faster loading times.</p>
+    </section>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 3rem; text-align: center; margin-bottom: 2rem; transition: all 0.3s ease;" id="dropZone">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 4rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Drop your images here</h3>
+            <p style="color: #b0b0b0; margin-bottom: 2rem;">or click to browse files</p>
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click(); event.stopPropagation();">Choose Files</button>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 1rem;">Supports: JPG, PNG, GIF, WebP (Max 50MB per file)</p>
+        </div>
+
+        <div id="fileList" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Selected Files</h3>
+            <div id="filesContainer"></div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 1.5rem; margin: 1rem 0;">
+                <h4 style="margin-bottom: 1rem; color: #00d4ff;">Compression Settings</h4>
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label for="qualitySlider" style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Quality Level: <span id="qualityValue">80%</span></label>
+                        <input type="range" id="qualitySlider" min="10" max="100" value="80" style="width: 100%; height: 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.1); outline: none; -webkit-appearance: none;">
+                        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.8rem; color: #b0b0b0;">
+                            <span>High Compression</span>
+                            <span>High Quality</span>
+                        </div>
+                    </div>
+                    <div style="min-width: 200px; text-align: center;">
+                        <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 1rem;">
+                            <div style="font-size: 0.9rem; color: #b0b0b0; margin-bottom: 0.5rem;">Estimated Size</div>
+                            <div id="estimatedSize" style="font-size: 1.2rem; font-weight: 700; color: #00d4ff;">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn" onclick="compressFiles()">Compress All Files</button>
+                <button class="btn-secondary" onclick="testResults()" style="margin-left: 1rem;">Test Results</button>
+            </div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Compression Results</h3>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <section style="margin-top: 4rem;">
+        <h2 style="text-align: center; font-size: 2rem; margin-bottom: 2rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">How It Works</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="background: #00d4ff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white;">1</div>
+                <h3 style="margin-bottom: 1rem;">Upload Images</h3>
+                <p style="color: #b0b0b0;">Drag and drop your images or click to browse. We support all major image formats.</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="background: #00d4ff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white;">2</div>
+                <h3 style="margin-bottom: 1rem;">Smart Compression</h3>
+                <p style="color: #b0b0b0;">Our advanced algorithms compress your images while maintaining visual quality.</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="background: #00d4ff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white;">3</div>
+                <h3 style="margin-bottom: 1rem;">Download Results</h3>
+                <p style="color: #b0b0b0;">Download your compressed images instantly. Files are processed locally for security.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    /* Slider Styles */
+    #qualitySlider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+    }
+
+    #qualitySlider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+    }
+
+    #qualitySlider::-webkit-slider-track {
+        background: linear-gradient(to right, #00ff88 0%, #00d4ff 100%);
+        border-radius: 5px;
+        height: 8px;
+    }
+
+    #qualitySlider::-moz-range-track {
+        background: linear-gradient(to right, #00ff88 0%, #00d4ff 100%);
+        border-radius: 5px;
+        height: 8px;
+        border: none;
+    }
+</style>
+
+<script>
+let selectedFiles = [];
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+document.getElementById('dropZone').addEventListener('click', (e) => {
+    // Only trigger file input if clicking on the drop zone itself, not on the button
+    if (e.target.tagName !== 'BUTTON') {
+        document.getElementById('fileInput').click();
+    }
+});
+document.getElementById('dropZone').addEventListener('dragover', handleDragOver);
+document.getElementById('dropZone').addEventListener('drop', handleDrop);
+
+// Slider functionality
+document.getElementById('qualitySlider').addEventListener('input', function() {
+    const quality = this.value;
+    document.getElementById('qualityValue').textContent = quality + '%';
+    updateEstimatedSize();
+});
+
+function updateEstimatedSize() {
+    if (selectedFiles.length === 0) {
+        document.getElementById('estimatedSize').textContent = '--';
+        return;
+    }
+    
+    const quality = parseInt(document.getElementById('qualitySlider').value);
+    const totalOriginalSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    
+    // Estimate compression ratio based on quality
+    let compressionRatio;
+    if (quality >= 90) compressionRatio = 0.85;
+    else if (quality >= 80) compressionRatio = 0.75;
+    else if (quality >= 70) compressionRatio = 0.65;
+    else if (quality >= 60) compressionRatio = 0.55;
+    else if (quality >= 50) compressionRatio = 0.45;
+    else if (quality >= 40) compressionRatio = 0.35;
+    else if (quality >= 30) compressionRatio = 0.25;
+    else if (quality >= 20) compressionRatio = 0.15;
+    else compressionRatio = 0.10;
+    
+    const estimatedSize = totalOriginalSize * compressionRatio;
+    const originalSizeMB = (totalOriginalSize / 1024 / 1024).toFixed(2);
+    const estimatedSizeMB = (estimatedSize / 1024 / 1024).toFixed(2);
+    
+    document.getElementById('estimatedSize').textContent = `${estimatedSizeMB} MB`;
+    
+    // Add size reduction info
+    const sizeReduction = ((1 - compressionRatio) * 100).toFixed(0);
+    document.getElementById('estimatedSize').innerHTML = `${estimatedSizeMB} MB<br><small style="color: #00ff88; font-size: 0.8rem;">~${sizeReduction}% smaller</small>`;
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#00d4ff';
+    e.currentTarget.style.background = 'rgba(0, 212, 255, 0.05)';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+    addFiles(files);
+}
+
+function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    addFiles(files);
+}
+
+function addFiles(files) {
+    selectedFiles = selectedFiles.concat(files);
+    displayFiles();
+}
+
+function displayFiles() {
+    const container = document.getElementById('filesContainer');
+    const fileList = document.getElementById('fileList');
+    
+    if (selectedFiles.length === 0) {
+        fileList.style.display = 'none';
+        return;
+    }
+    
+    fileList.style.display = 'block';
+    container.innerHTML = '';
+    updateEstimatedSize();
+    
+    selectedFiles.forEach((file, index) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        
+        fileDiv.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-image" style="font-size: 2rem; color: #00d4ff; margin-right: 1rem;"></i>
+                <div>
+                    <div style="font-weight: 600;">${file.name}</div>
+                    <div style="color: #b0b0b0; font-size: 0.9rem;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                </div>
+            </div>
+            <button class="btn-secondary" onclick="removeFile(${index})" style="padding: 8px 16px; font-size: 0.9rem;">Remove</button>
+        `;
+        
+        container.appendChild(fileDiv);
+    });
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    displayFiles();
+}
+
+async function compressFiles() {
+    console.log('compressFiles function called');
+    console.log('Selected files:', selectedFiles.length);
+    
+    if (selectedFiles.length === 0) {
+        alert('Please select files to compress');
+        return;
+    }
+    
+    const quality = document.getElementById('qualitySlider').value;
+    console.log('Starting compression with quality:', quality);
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    const results = document.getElementById('results');
+    
+    if (!resultsContainer || !results) {
+        console.error('Results container not found');
+        alert('Error: Results container not found');
+        return;
+    }
+    
+    // Show results section immediately
+    results.style.display = 'block';
+    resultsContainer.innerHTML = '<div style="text-align: center; color: #00d4ff;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Compressing images...</p></div>';
+    
+    console.log('Results section displayed');
+    
+    // Clear the initial loader after a short delay
+    setTimeout(() => {
+        resultsContainer.innerHTML = '';
+        console.log('Initial loader cleared');
+    }, 1000);
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        // Update progress for each file
+        const progressDiv = document.createElement('div');
+        progressDiv.id = `progress-${i}`;
+        progressDiv.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        `;
+        progressDiv.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: #00d4ff; margin-right: 1rem;"></i>
+                <div>
+                    <div style="font-weight: 600;">${file.name}</div>
+                    <div style="color: #b0b0b0; font-size: 0.9rem;">Compressing... (${i + 1}/${selectedFiles.length})</div>
+                </div>
+            </div>
+        `;
+        resultsContainer.appendChild(progressDiv);
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('quality', quality);
+            
+            console.log('Sending file:', file.name, 'with quality:', quality);
+            
+            const response = await fetch('/api/compress', {
+                method: 'POST',
+                body: formData
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            if (response.ok) {
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = response.headers.get('content-disposition')?.split('filename=')[1] || `compressed_${file.name}`;
+                
+                console.log('Created download for:', a.download);
+                
+                // Update results
+                const resultDiv = document.createElement('div');
+                resultDiv.id = `result-${i}`;
+                resultDiv.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                `;
+                
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #00d4ff; margin-right: 1rem;"></i>
+                            <div>
+                                <div style="font-weight: 600;">${file.name}</div>
+                                <div style="color: #b0b0b0; font-size: 0.9rem;">Compressed successfully</div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="downloadAndReset(this, '${url}', '${a.download}')">Download</button>
+                    </div>
+                `;
+                
+                // Replace progress div with result
+                const progressElement = document.getElementById(`progress-${i}`);
+                if (progressElement) {
+                    progressElement.replaceWith(resultDiv);
+                    console.log('Replaced progress with result for:', file.name);
+                } else {
+                    resultsContainer.appendChild(resultDiv);
+                    console.log('Added result for:', file.name);
+                }
+            } else {
+                const errorData = await response.json();
+                console.error('API Error:', errorData);
+                throw new Error(errorData.error || 'Compression failed');
+            }
+        } catch (error) {
+            console.error('Error processing file:', file.name, error);
+            const resultDiv = document.createElement('div');
+            resultDiv.id = `error-${i}`;
+            resultDiv.style.cssText = `
+                background: rgba(255, 0, 0, 0.1);
+                border: 1px solid rgba(255, 0, 0, 0.3);
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            `;
+            
+            resultDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ff4444; margin-right: 1rem;"></i>
+                    <div>
+                        <div style="font-weight: 600;">${file.name}</div>
+                        <div style="color: #ff4444; font-size: 0.9rem;">Error: ${error.message}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Replace progress div with error
+            const progressElement = document.getElementById(`progress-${i}`);
+            if (progressElement) {
+                progressElement.replaceWith(resultDiv);
+            } else {
+                resultsContainer.appendChild(resultDiv);
+            }
+        }
+    }
+    
+    // Add reset button after all processing is complete
+    const resetDiv = document.createElement('div');
+    resetDiv.style.cssText = `
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    `;
+    resetDiv.innerHTML = `
+        <button class="btn-secondary" onclick="resetPage()" style="margin-right: 1rem;">
+            <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>Process More Images
+        </button>
+        <button class="btn" onclick="clearAll()">
+            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>Clear All
+        </button>
+    `;
+    resultsContainer.appendChild(resetDiv);
+}
+
+function downloadAndReset(button, url, filename) {
+    // Create and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Clean up the URL object
+    window.URL.revokeObjectURL(url);
+    
+    // Change button text to show downloaded
+    button.innerHTML = '<i class="fas fa-check" style="margin-right: 0.5rem;"></i>Downloaded';
+    button.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+    button.disabled = true;
+    
+    // Reset button after 2 seconds
+    setTimeout(() => {
+        button.innerHTML = '<i class="fas fa-download" style="margin-right: 0.5rem;"></i>Download Again';
+        button.style.background = 'linear-gradient(45deg, #00d4ff, #0099cc)';
+        button.disabled = false;
+    }, 2000);
+}
+
+function resetPage() {
+    // Reset file input
+    document.getElementById('fileInput').value = '';
+    
+    // Clear selected files
+    selectedFiles = [];
+    
+    // Hide file list and results
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    
+    // Clear any remaining results
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearAll() {
+    // Reset everything
+    resetPage();
+}
+
+function testResults() {
+    console.log('Testing results display');
+    const results = document.getElementById('results');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    if (results && resultsContainer) {
+        results.style.display = 'block';
+        resultsContainer.innerHTML = `
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #00d4ff; margin-right: 1rem;"></i>
+                    <div>
+                        <div style="font-weight: 600;">Test File.jpg</div>
+                        <div style="color: #b0b0b0; font-size: 0.9rem;">Test compression result</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        console.log('Test results displayed successfully');
+    } else {
+        console.error('Results elements not found');
+        alert('Results elements not found');
+    }
+}
+</script>
+{% endblock %} 

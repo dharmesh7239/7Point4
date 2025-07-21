@@ -1,0 +1,633 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Images - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">Crop Images</h1>
+        <p class="hero-subtitle">Remove unwanted parts from your images. Crop to any aspect ratio or custom dimensions.</p>
+    </section>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 3rem; text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-crop-alt" style="font-size: 4rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Drop your images here</h3>
+            <p style="color: #b0b0b0; margin-bottom: 2rem;">or click to browse files</p>
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Choose Files</button>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 1rem;">Supports: JPG, PNG, GIF, WebP</p>
+        </div>
+
+        <div id="fileList" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Crop Options</h3>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Aspect Ratio (Optional)</label>
+                <select id="aspectRatio" style="width: 100%; padding: 0.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white; margin-bottom: 1rem; outline: none;">
+                    <option value="free" style="background: #1a1a1a; color: white;">Free Crop (No restrictions)</option>
+                    <option value="1:1" style="background: #1a1a1a; color: white;">Square (1:1)</option>
+                    <option value="16:9" style="background: #1a1a1a; color: white;">Widescreen (16:9)</option>
+                    <option value="4:3" style="background: #1a1a1a; color: white;">Standard (4:3)</option>
+                    <option value="3:2" style="background: #1a1a1a; color: white;">Photo (3:2)</option>
+                    <option value="9:16" style="background: #1a1a1a; color: white;">Portrait (9:16)</option>
+                </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Width (px)</label>
+                        <input type="number" id="cropWidth" placeholder="Auto" style="width: 100%; padding: 0.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Height (px)</label>
+                        <input type="number" id="cropHeight" placeholder="Auto" style="width: 100%; padding: 0.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white; outline: none;">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button class="btn-secondary" onclick="showLiveCrop()" style="margin-right: 1rem;">Live Crop Preview</button>
+                    <button class="btn-secondary" onclick="setAspectRatioFromDropdown()">Apply Aspect Ratio</button>
+                </div>
+            </div>
+            
+            <!-- Live Cropping Preview -->
+            <div id="cropPreview" style="display: none; background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem; color: #00d4ff;">Live Crop Preview</h4>
+                <div id="imageContainer" style="position: relative; display: inline-block; max-width: 100%; overflow: hidden; border-radius: 10px;">
+                    <img id="previewImage" style="max-width: 100%; height: auto; display: block;">
+                    <div id="cropOverlay" style="position: absolute; border: 2px solid #00d4ff; background: rgba(0, 212, 255, 0.05); cursor: move; display: none; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);"></div>
+                </div>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button class="btn-secondary" onclick="resetCrop()" style="margin-right: 1rem;">Reset Crop</button>
+                    <button class="btn" onclick="applyCrop()">Apply Crop</button>
+                </div>
+            </div>
+            <div id="filesContainer"></div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn" onclick="cropFiles()">Crop All Files</button>
+            </div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Crop Results</h3>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedFiles = [];
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    selectedFiles = files;
+    displayFiles();
+}
+
+let currentCropData = { x: 0, y: 0, width: 0, height: 0 };
+let isDragging = false;
+let isResizing = false;
+let dragStart = { x: 0, y: 0 };
+let resizeStart = { x: 0, y: 0, width: 0, height: 0 };
+let resizePosition = '';
+
+function setAspectRatio(ratio) {
+    const ratios = {
+        '1:1': { width: 1000, height: 1000 },
+        '16:9': { width: 1600, height: 900 },
+        '4:3': { width: 1200, height: 900 },
+        '3:2': { width: 1200, height: 800 },
+        '9:16': { width: 900, height: 1600 },
+        'free': { width: '', height: '' }
+    };
+    
+    if (ratios[ratio]) {
+        document.getElementById('cropWidth').value = ratios[ratio].width;
+        document.getElementById('cropHeight').value = ratios[ratio].height;
+    }
+}
+
+function setAspectRatioFromDropdown() {
+    const ratio = document.getElementById('aspectRatio').value;
+    setAspectRatio(ratio);
+}
+
+function showLiveCrop() {
+    if (selectedFiles.length === 0) {
+        alert('Please select an image first');
+        return;
+    }
+    
+    const file = selectedFiles[0];
+    const preview = document.getElementById('cropPreview');
+    const previewImage = document.getElementById('previewImage');
+    
+    // Create object URL for the image
+    const imageUrl = URL.createObjectURL(file);
+    previewImage.src = imageUrl;
+    
+    // Show the preview section
+    preview.style.display = 'block';
+    
+    // Initialize crop overlay after image loads
+    previewImage.onload = function() {
+        initializeCropOverlay();
+    };
+}
+
+function initializeCropOverlay() {
+    const container = document.getElementById('imageContainer');
+    const overlay = document.getElementById('cropOverlay');
+    const image = document.getElementById('previewImage');
+    
+    // Set initial crop area (center 50% of image)
+    const rect = container.getBoundingClientRect();
+    const imageRect = image.getBoundingClientRect();
+    
+    const cropWidth = imageRect.width * 0.5;
+    const cropHeight = imageRect.height * 0.5;
+    const cropX = (imageRect.width - cropWidth) / 2;
+    const cropY = (imageRect.height - cropHeight) / 2;
+    
+    overlay.style.left = cropX + 'px';
+    overlay.style.top = cropY + 'px';
+    overlay.style.width = cropWidth + 'px';
+    overlay.style.height = cropHeight + 'px';
+    overlay.style.display = 'block';
+    
+    // Store current crop data
+    currentCropData = {
+        x: cropX,
+        y: cropY,
+        width: cropWidth,
+        height: cropHeight
+    };
+    
+    // Add event listeners for dragging and resizing
+    overlay.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    // Add resize handles
+    addResizeHandles();
+}
+
+function addResizeHandles() {
+    const overlay = document.getElementById('cropOverlay');
+    
+    // Remove existing handles
+    const existingHandles = overlay.querySelectorAll('.resize-handle');
+    existingHandles.forEach(handle => handle.remove());
+    
+    // Add 8 resize handles like iLoveIMG (corners, edges)
+    const handlePositions = [
+        { pos: 'nw', cursor: 'nw-resize', top: '-8px', left: '-8px' },
+        { pos: 'n', cursor: 'n-resize', top: '-8px', left: '50%', transform: 'translateX(-50%)' },
+        { pos: 'ne', cursor: 'ne-resize', top: '-8px', right: '-8px' },
+        { pos: 'w', cursor: 'w-resize', top: '50%', left: '-8px', transform: 'translateY(-50%)' },
+        { pos: 'e', cursor: 'e-resize', top: '50%', right: '-8px', transform: 'translateY(-50%)' },
+        { pos: 'sw', cursor: 'sw-resize', bottom: '-8px', left: '-8px' },
+        { pos: 's', cursor: 's-resize', bottom: '-8px', left: '50%', transform: 'translateX(-50%)' },
+        { pos: 'se', cursor: 'se-resize', bottom: '-8px', right: '-8px' }
+    ];
+    
+    handlePositions.forEach(handleInfo => {
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        handle.dataset.position = handleInfo.pos;
+        
+        handle.style.cssText = `
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #00d4ff;
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: ${handleInfo.cursor};
+            z-index: 10;
+            top: ${handleInfo.top || 'auto'};
+            bottom: ${handleInfo.bottom || 'auto'};
+            left: ${handleInfo.left || 'auto'};
+            right: ${handleInfo.right || 'auto'};
+            transform: ${handleInfo.transform || 'none'};
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+        `;
+        
+        // Add resize event listeners
+        handle.addEventListener('mousedown', startResize);
+        
+        overlay.appendChild(handle);
+    });
+}
+
+function startDrag(e) {
+    if (e.target.classList.contains('resize-handle')) return;
+    isDragging = true;
+    const rect = e.target.getBoundingClientRect();
+    dragStart.x = e.clientX - rect.left;
+    dragStart.y = e.clientY - rect.top;
+    e.preventDefault();
+}
+
+function startResize(e) {
+    isResizing = true;
+    resizePosition = e.target.dataset.position;
+    const rect = e.target.getBoundingClientRect();
+    resizeStart.x = e.clientX;
+    resizeStart.y = e.clientY;
+    resizeStart.width = currentCropData.width;
+    resizeStart.height = currentCropData.height;
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function drag(e) {
+    if (!isDragging && !isResizing) return;
+    
+    const overlay = document.getElementById('cropOverlay');
+    const container = document.getElementById('imageContainer');
+    const containerRect = container.getBoundingClientRect();
+    
+    if (isDragging) {
+        const newX = e.clientX - containerRect.left - dragStart.x;
+        const newY = e.clientY - containerRect.top - dragStart.y;
+        
+        // Constrain to image bounds
+        const maxX = containerRect.width - currentCropData.width;
+        const maxY = containerRect.height - currentCropData.height;
+        
+        currentCropData.x = Math.max(0, Math.min(newX, maxX));
+        currentCropData.y = Math.max(0, Math.min(newY, maxY));
+        
+        overlay.style.left = currentCropData.x + 'px';
+        overlay.style.top = currentCropData.y + 'px';
+    } else if (isResizing) {
+        const deltaX = e.clientX - resizeStart.x;
+        const deltaY = e.clientY - resizeStart.y;
+        
+        let newX = currentCropData.x;
+        let newY = currentCropData.y;
+        let newWidth = resizeStart.width;
+        let newHeight = resizeStart.height;
+        
+        // Handle different resize positions
+        if (resizePosition === 'e' || resizePosition.includes('e')) {
+            newWidth = Math.max(50, resizeStart.width + deltaX);
+        }
+        if (resizePosition === 'w' || resizePosition.includes('w')) {
+            const maxDeltaX = currentCropData.x;
+            const actualDeltaX = Math.min(deltaX, maxDeltaX);
+            newWidth = Math.max(50, resizeStart.width - actualDeltaX);
+            newX = currentCropData.x - (resizeStart.width - newWidth);
+        }
+        if (resizePosition === 's' || resizePosition.includes('s')) {
+            newHeight = Math.max(50, resizeStart.height + deltaY);
+        }
+        if (resizePosition === 'n' || resizePosition.includes('n')) {
+            const maxDeltaY = currentCropData.y;
+            const actualDeltaY = Math.min(deltaY, maxDeltaY);
+            newHeight = Math.max(50, resizeStart.height - actualDeltaY);
+            newY = currentCropData.y - (resizeStart.height - newHeight);
+        }
+        
+        // Constrain to container bounds
+        if (newX < 0) {
+            newWidth += newX;
+            newX = 0;
+        }
+        if (newY < 0) {
+            newHeight += newY;
+            newY = 0;
+        }
+        if (newX + newWidth > containerRect.width) {
+            newWidth = containerRect.width - newX;
+        }
+        if (newY + newHeight > containerRect.height) {
+            newHeight = containerRect.height - newY;
+        }
+        
+        // Update crop data
+        currentCropData.x = newX;
+        currentCropData.y = newY;
+        currentCropData.width = newWidth;
+        currentCropData.height = newHeight;
+        
+        // Update overlay
+        overlay.style.left = newX + 'px';
+        overlay.style.top = newY + 'px';
+        overlay.style.width = newWidth + 'px';
+        overlay.style.height = newHeight + 'px';
+    }
+}
+
+function stopDrag() {
+    isDragging = false;
+    isResizing = false;
+}
+
+function resetCrop() {
+    const overlay = document.getElementById('cropOverlay');
+    overlay.style.display = 'none';
+    initializeCropOverlay();
+}
+
+function applyCrop() {
+    // Get the actual image dimensions
+    const image = document.getElementById('previewImage');
+    const imageRect = image.getBoundingClientRect();
+    
+    // Get the natural image dimensions (actual image size)
+    const naturalWidth = image.naturalWidth;
+    const naturalHeight = image.naturalHeight;
+    
+    // Calculate crop coordinates as percentages of the actual image
+    const cropPercentages = {
+        x: (currentCropData.x / imageRect.width) * 100,
+        y: (currentCropData.y / imageRect.height) * 100,
+        width: (currentCropData.width / imageRect.width) * 100,
+        height: (currentCropData.height / imageRect.height) * 100
+    };
+    
+    // Calculate actual pixel values based on natural image size
+    const actualCropData = {
+        x: Math.round((cropPercentages.x / 100) * naturalWidth),
+        y: Math.round((cropPercentages.y / 100) * naturalHeight),
+        width: Math.round((cropPercentages.width / 100) * naturalWidth),
+        height: Math.round((cropPercentages.height / 100) * naturalHeight)
+    };
+    
+    // Store both percentage and pixel data
+    window.cropPercentages = cropPercentages;
+    window.actualCropData = actualCropData;
+    
+    // Update width and height inputs with actual pixel values
+    document.getElementById('cropWidth').value = actualCropData.width;
+    document.getElementById('cropHeight').value = actualCropData.height;
+    
+    // Hide preview
+    document.getElementById('cropPreview').style.display = 'none';
+    
+    // Show visual indicator that crop is ready
+    const cropButton = document.querySelector('button[onclick="cropFiles()"]');
+    if (cropButton) {
+        cropButton.innerHTML = '<i class="fas fa-crop" style="margin-right: 0.5rem;"></i>Crop Images (Ready)';
+        cropButton.style.background = 'linear-gradient(135deg, #00d4ff, #0099cc)';
+    }
+    
+    console.log('Display crop data:', currentCropData);
+    console.log('Natural image size:', naturalWidth, 'x', naturalHeight);
+    console.log('Display image size:', imageRect.width, 'x', imageRect.height);
+    console.log('Crop percentages:', cropPercentages);
+    console.log('Actual crop pixels:', actualCropData);
+    
+    alert(`Crop area applied!\nWidth: ${actualCropData.width}px\nHeight: ${actualCropData.height}px\nCrop percentages: ${cropPercentages.x.toFixed(1)}%, ${cropPercentages.y.toFixed(1)}%, ${cropPercentages.width.toFixed(1)}%, ${cropPercentages.height.toFixed(1)}%`);
+}
+
+function displayFiles() {
+    const container = document.getElementById('filesContainer');
+    const fileList = document.getElementById('fileList');
+    
+    if (selectedFiles.length === 0) {
+        fileList.style.display = 'none';
+        return;
+    }
+    
+    fileList.style.display = 'block';
+    container.innerHTML = '';
+    
+    selectedFiles.forEach((file, index) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        
+        fileDiv.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-image" style="font-size: 2rem; color: #00d4ff; margin-right: 1rem;"></i>
+                <div>
+                    <div style="font-weight: 600;">${file.name}</div>
+                    <div style="color: #b0b0b0; font-size: 0.9rem;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                </div>
+            </div>
+            <button class="btn-secondary" onclick="removeFile(${index})" style="padding: 8px 16px; font-size: 0.9rem;">Remove</button>
+        `;
+        
+        container.appendChild(fileDiv);
+    });
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    displayFiles();
+}
+
+async function cropFiles() {
+    if (selectedFiles.length === 0) return;
+    
+    const width = document.getElementById('cropWidth').value;
+    const height = document.getElementById('cropHeight').value;
+    
+    // Check if we have crop percentages from live crop
+    const cropPercentages = window.cropPercentages;
+    
+    if (!width && !height && !cropPercentages) {
+        alert('Please either:\n1. Enter width and/or height values, OR\n2. Use the live crop preview above to select a crop area and click "Apply Crop"');
+        return;
+    }
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    const results = document.getElementById('results');
+    
+    // Show results section immediately
+    results.style.display = 'block';
+    resultsContainer.innerHTML = '<div style="text-align: center; color: #00d4ff;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Cropping images...</p><p style="color: #b0b0b0; font-size: 0.9rem;">Processing ' + selectedFiles.length + ' files...</p></div>';
+    
+    // Process each file
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // If we have crop data from live crop, use those
+            if (cropPercentages && window.actualCropData) {
+                const actualCrop = window.actualCropData;
+                formData.append('crop_x', actualCrop.x);
+                formData.append('crop_y', actualCrop.y);
+                formData.append('crop_width', actualCrop.width);
+                formData.append('crop_height', actualCrop.height);
+                console.log('Using actual crop pixels:', actualCrop);
+            } else {
+                // Use width/height inputs
+                if (width) formData.append('width', width);
+                if (height) formData.append('height', height);
+            }
+            
+            const response = await fetch('/api/crop', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const filename = response.headers.get('content-disposition')?.split('filename=')[1] || `cropped_${file.name}`;
+                
+                // Create result div
+                const resultDiv = document.createElement('div');
+                resultDiv.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                `;
+                
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #00d4ff; margin-right: 1rem;"></i>
+                            <div>
+                                <div style="font-weight: 600;">${file.name}</div>
+                                <div style="color: #b0b0b0; font-size: 0.9rem;">Cropped successfully</div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="downloadFile('${url}', '${filename}')">Download</button>
+                    </div>
+                `;
+                
+                // Clear initial loader and add result
+                if (i === 0) {
+                    resultsContainer.innerHTML = '';
+                }
+                resultsContainer.appendChild(resultDiv);
+            } else {
+                const errorData = await response.json();
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    background: rgba(255, 0, 0, 0.1);
+                    border: 1px solid rgba(255, 0, 0, 0.3);
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                `;
+                
+                errorDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ff4444; margin-right: 1rem;"></i>
+                        <div>
+                            <div style="font-weight: 600;">${file.name}</div>
+                            <div style="color: #ff4444; font-size: 0.9rem;">Error: ${errorData.error || 'Crop failed'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                if (i === 0) {
+                    resultsContainer.innerHTML = '';
+                }
+                resultsContainer.appendChild(errorDiv);
+            }
+        } catch (error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                background: rgba(255, 0, 0, 0.1);
+                border: 1px solid rgba(255, 0, 0, 0.3);
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            `;
+            
+            errorDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ff4444; margin-right: 1rem;"></i>
+                    <div>
+                        <div style="font-weight: 600;">${file.name}</div>
+                        <div style="color: #ff4444; font-size: 0.9rem;">Error: ${error.message}</div>
+                    </div>
+                </div>
+            `;
+            
+            if (i === 0) {
+                resultsContainer.innerHTML = '';
+            }
+            resultsContainer.appendChild(errorDiv);
+        }
+    }
+    
+    // Add reset button after all processing is complete
+    const resetDiv = document.createElement('div');
+    resetDiv.style.cssText = `
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    `;
+    resetDiv.innerHTML = `
+        <button class="btn-secondary" onclick="resetPage()" style="margin-right: 1rem;">
+            <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>Process More Images
+        </button>
+        <button class="btn" onclick="clearAll()">
+            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>Clear All
+        </button>
+    `;
+    resultsContainer.appendChild(resetDiv);
+}
+
+function downloadFile(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function resetPage() {
+    // Reset file input
+    document.getElementById('fileInput').value = '';
+    
+    // Clear selected files
+    selectedFiles = [];
+    
+    // Hide file list and results
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    
+    // Clear any remaining results
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearAll() {
+    // Reset everything
+    resetPage();
+    
+    // Reset crop button
+    const cropButton = document.querySelector('button[onclick="cropFiles()"]');
+    if (cropButton) {
+        cropButton.innerHTML = '<i class="fas fa-crop" style="margin-right: 0.5rem;"></i>Crop Images';
+        cropButton.style.background = '';
+    }
+    
+    // Clear crop data
+    window.cropPercentages = null;
+    window.actualCropData = null;
+}
+</script>
+{% endblock %} 

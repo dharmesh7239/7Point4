@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}Live Background Remover - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">Fast Background Remover</h1>
+        <p class="hero-subtitle">High-quality background removal in 10-15 seconds. Perfect edges with optimized processing for speed!</p>
+    </section>
+
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <!-- Upload Section -->
+        <div id="uploadSection" style="background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 3rem; text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-cut" style="font-size: 4rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Drop your image here</h3>
+            <p style="color: #b0b0b0; margin-bottom: 2rem;">or click to browse files</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Choose Image</button>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 1rem;">Supports: JPG, PNG, GIF, WebP, BMP, TIFF</p>
+        </div>
+
+        <!-- Live Preview Section -->
+        <div id="livePreviewSection" style="display: none;">
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; text-align: center;">Background Removal Results</h3>
+                
+                <!-- Original Image Display (Hidden after processing) -->
+                <div id="originalImageContainer" style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+                    <h4 style="color: #00d4ff; margin-bottom: 1rem; font-size: 1.1rem;">
+                        <i class="fas fa-image" style="margin-right: 0.5rem;"></i>Original Image
+                    </h4>
+                    <img id="originalImage" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 10px;" alt="Original Image">
+                </div>
+                
+                <!-- Results Container (Hidden until processing) -->
+                <div id="resultsContainer" style="display: none; margin-bottom: 2rem;">
+                    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 1.5rem; text-align: center;">
+                        <h4 style="color: #00d4ff; margin-bottom: 1rem; font-size: 1.1rem;">
+                            <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>Background Removed
+                        </h4>
+                        <img id="removedImage" style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 10px;" alt="Background Removed">
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button id="processBtn" class="btn" onclick="processBackgroundRemoval()">
+                            <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>Remove Background
+                        </button>
+                        <button id="downloadBtn" class="btn" onclick="downloadResult()" style="display: none;">
+                            <i class="fas fa-download" style="margin-right: 0.5rem;"></i>Download
+                        </button>
+                    </div>
+                    <button class="btn-secondary" onclick="resetPreview()">
+                        <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>Try Another Image
+                    </button>
+                </div>
+
+                <!-- Processing Status -->
+                <div id="processingStatus" style="display: none; text-align: center; padding: 1rem; background: rgba(0, 212, 255, 0.1); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                        <i class="fas fa-spinner fa-spin" style="color: #00d4ff; font-size: 1.5rem;"></i>
+                        <span style="color: #00d4ff; font-weight: 600;">Processing with Fast AI...</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; height: 6px; overflow: hidden;">
+                        <div id="progressBar" style="height: 100%; background: linear-gradient(90deg, #00d4ff, #0099cc); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <p style="color: #b0b0b0; font-size: 0.9rem; margin-top: 1rem;">Optimized processing for fast results (10-15 seconds)</p>
+                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(0, 212, 255, 0.1); border-radius: 5px; font-size: 0.8rem; color: #00d4ff;">
+                        <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>Applying fast AI with optimized edge refinement
+                    </div>
+                </div>
+
+                <!-- Tips Section -->
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 15px;">
+                    <h4 style="margin-bottom: 1rem; color: #00d4ff;">
+                        <i class="fas fa-lightbulb" style="margin-right: 0.5rem;"></i>Tips for Best Results
+                    </h4>
+                                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                         <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                             <i class="fas fa-check-circle" style="color: #00d4ff; margin-top: 2px;"></i>
+                             <div>
+                                 <div style="font-weight: 600; margin-bottom: 0.25rem;">Fast Processing</div>
+                                 <div style="color: #b0b0b0; font-size: 0.9rem;">Optimized for 10-15 second completion</div>
+                             </div>
+                         </div>
+                         <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                             <i class="fas fa-check-circle" style="color: #00d4ff; margin-top: 2px;"></i>
+                             <div>
+                                 <div style="font-weight: 600; margin-bottom: 0.25rem;">High Quality</div>
+                                 <div style="color: #b0b0b0; font-size: 0.9rem;">Perfect edges with optimized AI processing</div>
+                             </div>
+                         </div>
+                         <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                             <i class="fas fa-check-circle" style="color: #00d4ff; margin-top: 2px;"></i>
+                             <div>
+                                 <div style="font-weight: 600; margin-bottom: 0.25rem;">Smart Optimization</div>
+                                 <div style="color: #b0b0b0; font-size: 0.9rem;">Efficient algorithms for speed and quality</div>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let originalImageUrl = null;
+let removedImageUrl = null;
+let isProcessing = false;
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+// Drag and drop functionality
+const uploadSection = document.getElementById('uploadSection');
+uploadSection.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadSection.style.borderColor = '#00d4ff';
+    uploadSection.style.background = 'rgba(0, 212, 255, 0.1)';
+});
+
+uploadSection.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadSection.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+    uploadSection.style.background = 'rgba(255, 255, 255, 0.05)';
+});
+
+uploadSection.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadSection.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+    uploadSection.style.background = 'rgba(255, 255, 255, 0.05)';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+        handleFile(files[0]);
+    }
+});
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+        handleFile(file);
+    }
+}
+
+function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        originalImageUrl = e.target.result;
+        showLivePreview();
+    };
+    reader.readAsDataURL(file);
+}
+
+function showLivePreview() {
+    document.getElementById('uploadSection').style.display = 'none';
+    document.getElementById('livePreviewSection').style.display = 'block';
+    
+    const originalImg = document.getElementById('originalImage');
+    originalImg.src = originalImageUrl;
+    
+    // Scroll to preview
+    document.getElementById('livePreviewSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+
+
+async function processBackgroundRemoval() {
+    if (isProcessing || !originalImageUrl) return;
+    
+    isProcessing = true;
+    const processBtn = document.getElementById('processBtn');
+    const processingStatus = document.getElementById('processingStatus');
+    const progressBar = document.getElementById('progressBar');
+    
+    // Show processing UI
+    processBtn.disabled = true;
+    processBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Processing...';
+    processingStatus.style.display = 'block';
+    
+    // Simulate progress with more realistic stages
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        // Simulate different processing stages
+        if (progress < 30) {
+            progress += Math.random() * 8; // Initial processing
+        } else if (progress < 60) {
+            progress += Math.random() * 6; // AI analysis
+        } else if (progress < 85) {
+            progress += Math.random() * 4; // Edge refinement
+        } else {
+            progress += Math.random() * 2; // Final enhancement
+        }
+        if (progress > 95) progress = 95;
+        progressBar.style.width = progress + '%';
+    }, 300);
+    
+    try {
+        // Convert data URL to file
+        const response = await fetch(originalImageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'image.jpg', { type: blob.type });
+        
+        // Send to API
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const apiResponse = await fetch('/api/remove-background', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (apiResponse.ok) {
+            const resultBlob = await apiResponse.blob();
+            removedImageUrl = URL.createObjectURL(resultBlob);
+            
+            // Set the removed image
+            document.getElementById('removedImage').src = removedImageUrl;
+            
+            // Complete progress
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            
+            // Show success and download button
+            setTimeout(() => {
+                processingStatus.style.display = 'none';
+                document.getElementById('originalImageContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'block';
+                document.getElementById('downloadBtn').style.display = 'inline-flex';
+                processBtn.innerHTML = '<i class="fas fa-check" style="margin-right: 0.5rem;"></i>Background Removed!';
+                processBtn.style.background = '#28a745';
+                
+                // Scroll to results
+                document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+            
+        } else {
+            throw new Error('Background removal failed');
+        }
+        
+    } catch (error) {
+        clearInterval(progressInterval);
+        processingStatus.style.display = 'none';
+        processBtn.disabled = false;
+        processBtn.innerHTML = '<i class="fas fa-magic" style="margin-right: 0.5rem;"></i>Remove Background';
+        
+        alert('Error: ' + error.message);
+    }
+    
+    isProcessing = false;
+}
+
+function downloadResult() {
+    if (!removedImageUrl) return;
+    
+    const a = document.createElement('a');
+    a.href = removedImageUrl;
+    a.download = 'background_removed.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function resetPreview() {
+    // Reset UI
+    document.getElementById('uploadSection').style.display = 'block';
+    document.getElementById('livePreviewSection').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    
+    // Reset variables
+    originalImageUrl = null;
+    removedImageUrl = null;
+    isProcessing = false;
+    
+    // Reset buttons
+    const processBtn = document.getElementById('processBtn');
+    processBtn.disabled = false;
+    processBtn.innerHTML = '<i class="fas fa-magic" style="margin-right: 0.5rem;"></i>Remove Background';
+    processBtn.style.background = '';
+    
+    document.getElementById('downloadBtn').style.display = 'none';
+    document.getElementById('processingStatus').style.display = 'none';
+    document.getElementById('resultsContainer').style.display = 'none';
+    document.getElementById('originalImageContainer').style.display = 'block';
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+</script>
+
+<style>
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %} 

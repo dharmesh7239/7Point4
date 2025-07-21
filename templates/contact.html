@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">Contact Us</h1>
+        <p class="hero-subtitle">Get in touch with our team. We'd love to hear from you!</p>
+    </section>
+
+    <section style="margin: 4rem 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;">
+            <div>
+                <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Get in Touch</h2>
+                <p style="color: #b0b0b0; line-height: 1.8; margin-bottom: 2rem;">
+                    Have questions about our tools? Need help with image processing? 
+                    Want to suggest new features? We're here to help!
+                </p>
+                
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h3 style="margin-bottom: 1.5rem; color: #00d4ff;">Contact Information</h3>
+                    
+                    <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                        <i class="fas fa-envelope" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                        <div>
+                            <h4 style="margin-bottom: 0.5rem;">Email</h4>
+                            <p style="color: #b0b0b0;">support@7.4solutions.com</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                        <i class="fas fa-clock" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                        <div>
+                            <h4 style="margin-bottom: 0.5rem;">Response Time</h4>
+                            <p style="color: #b0b0b0;">Within 24 hours</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                        <i class="fas fa-globe" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                        <div>
+                            <h4 style="margin-bottom: 0.5rem;">Website</h4>
+                            <p style="color: #b0b0b0;">www.7.4solutions.com</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-map-marker-alt" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                        <div>
+                            <h4 style="margin-bottom: 0.5rem;">Location</h4>
+                            <p style="color: #b0b0b0;">Global - Remote Team</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: #00d4ff;">Follow Us</h3>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; color: #00d4ff;">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; color: #00d4ff;">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; color: #00d4ff;">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; color: #00d4ff;">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 3rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h3 style="margin-bottom: 2rem; color: #00d4ff;">Send us a Message</h3>
+                    
+                    <form id="contactForm">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Name</label>
+                            <input type="text" id="name" required style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Email</label>
+                            <input type="email" id="email" required style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Subject</label>
+                            <select id="subject" style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 1rem;">
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="support">Technical Support</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="bug">Bug Report</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Message</label>
+                            <textarea id="message" rows="6" required style="width: 100%; padding: 0.75rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-size: 1rem; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%; padding: 1rem; font-size: 1.1rem;">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="margin: 4rem 0;">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Frequently Asked Questions</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-bottom: 1rem; color: #00d4ff;">Is my data secure?</h3>
+                <p style="color: #b0b0b0; line-height: 1.6;">
+                    Yes! All image processing is done locally in your browser. Your images are never uploaded to our servers, ensuring complete privacy and security.
+                </p>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-bottom: 1rem; color: #00d4ff;">What file formats do you support?</h3>
+                <p style="color: #b0b0b0; line-height: 1.6;">
+                    We support all major image formats including JPG, PNG, GIF, WebP, BMP, and TIFF. Each tool has specific format requirements.
+                </p>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-bottom: 1rem; color: #00d4ff;">Is there a file size limit?</h3>
+                <p style="color: #b0b0b0; line-height: 1.6;">
+                    We recommend files under 50MB for optimal performance. Larger files may take longer to process but are still supported.
+                </p>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-bottom: 1rem; color: #00d4ff;">Are your tools really free?</h3>
+                <p style="color: #b0b0b0; line-height: 1.6;">
+                    Yes! All our tools are completely free to use with no hidden costs, watermarks, or limitations. We believe in making powerful tools accessible to everyone.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    
+    if (!name || !email || !subject || !message) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    // Simulate form submission
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    setTimeout(() => {
+        alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+        document.getElementById('contactForm').reset();
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }, 2000);
+});
+</script>
+{% endblock %} 

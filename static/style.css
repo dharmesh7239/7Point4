@@ -1,0 +1,114 @@
+/* PDF Editor Panel (Smallpdf style) */
+.pdf-editor-outer {
+  max-width: 900px;
+  margin: 2rem auto 3rem auto;
+  background: rgba(255,255,255,0.04);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+  padding: 2.5rem 1.5rem 2rem 1.5rem;
+}
+.pdf-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 340px;
+  border: 2.5px dashed #00d4ff;
+  border-radius: 18px;
+  background: rgba(0,212,255,0.07);
+  transition: border 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.pdf-upload-area.dragover {
+  border: 2.5px solid #00d4ff;
+  background: rgba(0,212,255,0.13);
+}
+.upload-panel {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+.upload-panel i {
+  font-size: 3.5rem;
+  color: #00d4ff;
+  margin-bottom: 1.2rem;
+}
+.upload-title {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.7rem;
+}
+.choose-file {
+  color: #00d4ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.upload-sub {
+  color: #b0b0b0;
+  font-size: 1rem;
+}
+.pdf-editor-panel {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pdf-viewer {
+  width: 100%;
+  height: 700px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
+  background: #181c24;
+  margin-bottom: 1.2rem;
+  overflow: hidden;
+}
+.pdf-toolbar-tip {
+  margin-bottom: 1.2rem;
+  color: #00d4ff;
+  font-size: 1.05rem;
+  text-align: left;
+  width: 100%;
+}
+.download-btn {
+  background: linear-gradient(90deg, #00d4ff 0%, #0077ff 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 2.2rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px 0 rgba(0,212,255,0.13);
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-bottom: 0.5rem;
+}
+.download-btn:hover {
+  background: linear-gradient(90deg, #0077ff 0%, #00d4ff 100%);
+  box-shadow: 0 4px 16px 0 rgba(0,212,255,0.18);
+}
+@media (max-width: 700px) {
+  .pdf-editor-outer { padding: 1rem 0.2rem; }
+  .pdf-viewer { height: 420px; }
+  .upload-panel { padding: 1.2rem 0.2rem; }
+} 
+
+/* Modern dark dropdown for all select elements */
+select, .form-control {
+  background: #181c24 !important;
+  color: #fff !important;
+  border: 1.5px solid #00d4ff !important;
+  border-radius: 8px !important;
+  font-size: 1.1rem !important;
+  padding: 0.7rem 1rem !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border 0.2s;
+}
+select:focus, .form-control:focus {
+  border: 1.5px solid #00d4ff !important;
+  background: #222 !important;
+}
+option {
+  background: #181c24;
+  color: #fff;
+} 

@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Resize Images - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">Resize Images</h1>
+        <p class="hero-subtitle">Change image dimensions to fit your needs. Scale up or down with precision and quality.</p>
+    </section>
+
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="background: rgba(255, 255, 255, 0.05); border: 2px dashed rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 3rem; text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-expand-arrows-alt" style="font-size: 4rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Drop your images here</h3>
+            <p style="color: #b0b0b0; margin-bottom: 2rem;">or click to browse files</p>
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Choose Files</button>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 1rem;">Supports: JPG, PNG, GIF, WebP (Max 50MB per file)</p>
+        </div>
+
+        <div id="fileList" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Resize Options</h3>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; margin-bottom: 2rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Width (px)</label>
+                        <input type="number" id="width" placeholder="Auto" style="width: 100%; padding: 0.5rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; color: #b0b0b0;">Height (px)</label>
+                        <input type="number" id="height" placeholder="Auto" style="width: 100%; padding: 0.5rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <button class="btn-secondary" onclick="setPresetSize('1920x1080')">1920x1080</button>
+                    <button class="btn-secondary" onclick="setPresetSize('1280x720')">1280x720</button>
+                    <button class="btn-secondary" onclick="setPresetSize('800x600')">800x600</button>
+                    <button class="btn-secondary" onclick="setPresetSize('640x480')">640x480</button>
+                </div>
+            </div>
+            <div id="filesContainer"></div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn" onclick="resizeFiles()">Resize All Files</button>
+            </div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3 style="margin-bottom: 1rem;">Resize Results</h3>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedFiles = [];
+
+document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+function handleFileSelect(e) {
+    const files = Array.from(e.target.files);
+    selectedFiles = files;
+    displayFiles();
+}
+
+function setPresetSize(size) {
+    const [width, height] = size.split('x');
+    document.getElementById('width').value = width;
+    document.getElementById('height').value = height;
+}
+
+function displayFiles() {
+    const container = document.getElementById('filesContainer');
+    const fileList = document.getElementById('fileList');
+    
+    if (selectedFiles.length === 0) {
+        fileList.style.display = 'none';
+        return;
+    }
+    
+    fileList.style.display = 'block';
+    container.innerHTML = '';
+    
+    selectedFiles.forEach((file, index) => {
+        const fileDiv = document.createElement('div');
+        fileDiv.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        
+        fileDiv.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-image" style="font-size: 2rem; color: #00d4ff; margin-right: 1rem;"></i>
+                <div>
+                    <div style="font-weight: 600;">${file.name}</div>
+                    <div style="color: #b0b0b0; font-size: 0.9rem;">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                </div>
+            </div>
+            <button class="btn-secondary" onclick="removeFile(${index})" style="padding: 8px 16px; font-size: 0.9rem;">Remove</button>
+        `;
+        
+        container.appendChild(fileDiv);
+    });
+}
+
+function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    displayFiles();
+}
+
+async function resizeFiles() {
+    if (selectedFiles.length === 0) return;
+    
+    const width = document.getElementById('width').value;
+    const height = document.getElementById('height').value;
+    
+    if (!width && !height) {
+        alert('Please specify at least width or height');
+        return;
+    }
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    const results = document.getElementById('results');
+    
+    // Show results section immediately
+    results.style.display = 'block';
+    resultsContainer.innerHTML = '<div style="text-align: center; color: #00d4ff;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p>Resizing images...</p><p style="color: #b0b0b0; font-size: 0.9rem;">Processing ' + selectedFiles.length + ' files...</p></div>';
+    
+    // Process each file
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            if (width) formData.append('width', width);
+            if (height) formData.append('height', height);
+            
+            const response = await fetch('/api/resize', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const filename = response.headers.get('content-disposition')?.split('filename=')[1] || `resized_${file.name}`;
+                
+                // Create result div
+                const resultDiv = document.createElement('div');
+                resultDiv.style.cssText = `
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                `;
+                
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #00d4ff; margin-right: 1rem;"></i>
+                            <div>
+                                <div style="font-weight: 600;">${file.name}</div>
+                                <div style="color: #b0b0b0; font-size: 0.9rem;">Resized successfully</div>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="downloadFile('${url}', '${filename}')">Download</button>
+                    </div>
+                `;
+                
+                // Clear initial loader and add result
+                if (i === 0) {
+                    resultsContainer.innerHTML = '';
+                }
+                resultsContainer.appendChild(resultDiv);
+            } else {
+                const errorData = await response.json();
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    background: rgba(255, 0, 0, 0.1);
+                    border: 1px solid rgba(255, 0, 0, 0.3);
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                `;
+                
+                errorDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ff4444; margin-right: 1rem;"></i>
+                        <div>
+                            <div style="font-weight: 600;">${file.name}</div>
+                            <div style="color: #ff4444; font-size: 0.9rem;">Error: ${errorData.error || 'Resize failed'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                if (i === 0) {
+                    resultsContainer.innerHTML = '';
+                }
+                resultsContainer.appendChild(errorDiv);
+            }
+        } catch (error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = `
+                background: rgba(255, 0, 0, 0.1);
+                border: 1px solid rgba(255, 0, 0, 0.3);
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            `;
+            
+            errorDiv.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 1.5rem; color: #ff4444; margin-right: 1rem;"></i>
+                    <div>
+                        <div style="font-weight: 600;">${file.name}</div>
+                        <div style="color: #ff4444; font-size: 0.9rem;">Error: ${error.message}</div>
+                    </div>
+                </div>
+            `;
+            
+            if (i === 0) {
+                resultsContainer.innerHTML = '';
+            }
+            resultsContainer.appendChild(errorDiv);
+        }
+    }
+    
+    // Add reset button after all processing is complete
+    const resetDiv = document.createElement('div');
+    resetDiv.style.cssText = `
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    `;
+    resetDiv.innerHTML = `
+        <button class="btn-secondary" onclick="resetPage()" style="margin-right: 1rem;">
+            <i class="fas fa-redo" style="margin-right: 0.5rem;"></i>Process More Images
+        </button>
+        <button class="btn" onclick="clearAll()">
+            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>Clear All
+        </button>
+    `;
+    resultsContainer.appendChild(resetDiv);
+}
+
+function downloadFile(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function resetPage() {
+    // Reset file input
+    document.getElementById('fileInput').value = '';
+    
+    // Clear selected files
+    selectedFiles = [];
+    
+    // Hide file list and results
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    
+    // Clear any remaining results
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.innerHTML = '';
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearAll() {
+    // Reset everything
+    resetPage();
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}7.4 Solutions - Image & PDF Tools{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section" style="margin-bottom: 0.5rem;">
+        <h1 class="hero-title" style="font-size: 3.2rem;">Your All in One Non-Stop Solution </h1>
+        <p class="hero-subtitle" style="font-size: 1.45rem;">Transform, Edit, And Optimize Your Images And PDFs With Our Powerful Online Tools. No Registration Required.</p>
+    </section>
+
+    <!-- Features Section -->
+    <section style="text-align: center; margin-bottom: 6rem; margin-top: 0;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0, 255, 136, 0.1); padding: 1.25rem 2rem; border-radius: 12px; border: 1px solid rgba(0, 255, 136, 0.3); backdrop-filter: blur(10px);">
+                <i class="fas fa-gift" style="font-size: 1.7rem; color: #00ff88;"></i>
+                <span style="color: #00ff88; font-weight: 700; font-size: 1.35rem;">100% Free</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0, 212, 255, 0.1); padding: 1.25rem 2rem; border-radius: 12px; border: 1px solid rgba(0, 212, 255, 0.3); backdrop-filter: blur(10px);">
+                <i class="fas fa-bolt" style="font-size: 1.7rem; color: #00d4ff;"></i>
+                <span style="color: #00d4ff; font-weight: 700; font-size: 1.35rem;">Lightning Fast</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(255, 255, 255, 0.1); padding: 1.25rem 2rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);">
+                <i class="fas fa-shield-alt" style="font-size: 1.7rem; color: white;"></i>
+                <span style="color: white; font-weight: 700; font-size: 1.35rem;">Secure & Private</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Tools Section -->
+    <section style="margin-bottom: 6rem;">
+        <h2 style="text-align: center; margin-bottom: 4rem; color: white; font-size: 3.5rem; font-weight: 900; text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);">Image Tools</h2>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="window.location.href='/compress'">
+                <i class="fas fa-compress tool-icon"></i>
+                <h3 class="tool-title">Compress Images</h3>
+                <p class="tool-description">Reduce image file size while maintaining quality. Perfect for web optimization.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/resize'">
+                <i class="fas fa-expand-arrows-alt tool-icon"></i>
+                <h3 class="tool-title">Resize Images</h3>
+                <p class="tool-description">Resize images to any dimension. Maintain aspect ratio or specify custom sizes.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/convert'">
+                <i class="fas fa-exchange-alt tool-icon"></i>
+                <h3 class="tool-title">Convert Images</h3>
+                <p class="tool-description">Convert between JPG, PNG, GIF, WebP, and more formats.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/crop'">
+                <i class="fas fa-crop tool-icon"></i>
+                <h3 class="tool-title">Crop Images</h3>
+                <p class="tool-description">Crop images to remove unwanted areas or focus on specific content.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/rotate'">
+                <i class="fas fa-redo tool-icon"></i>
+                <h3 class="tool-title">Rotate Images</h3>
+                <p class="tool-description">Rotate images by any angle. Perfect for correcting orientation.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/watermark'">
+                <i class="fas fa-stamp tool-icon"></i>
+                <h3 class="tool-title">Add Watermark</h3>
+                <p class="tool-description">Add custom text or logo watermarks to protect your images.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/background-remover'">
+                <i class="fas fa-cut tool-icon"></i>
+                <h3 class="tool-title">Background Remover</h3>
+                <p class="tool-description">Remove backgrounds from images using AI technology.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PDF Tools Section -->
+    <section style="margin-bottom: 6rem;">
+        <h2 style="text-align: center; margin-bottom: 4rem; color: white; font-size: 3.5rem; font-weight: 900; text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);">PDF Tools</h2>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="window.location.href='/edit-pdf'">
+                <i class="fas fa-edit tool-icon"></i>
+                <h3 class="tool-title">Edit PDF</h3>
+                <p class="tool-description">Edit text, images, and content in your PDF documents.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/pdf-to-word'">
+                <i class="fas fa-file-word tool-icon"></i>
+                <h3 class="tool-title">PDF to Word</h3>
+                <p class="tool-description">Convert PDF documents to editable Word format.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/word-to-pdf'">
+                <i class="fas fa-file-pdf tool-icon"></i>
+                <h3 class="tool-title">Word to PDF</h3>
+                <p class="tool-description">Convert Word documents to professional PDF format.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/images-to-pdf'">
+                <i class="fas fa-images tool-icon"></i>
+                <h3 class="tool-title">Images to PDF</h3>
+                <p class="tool-description">Convert multiple images into a single PDF document.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/merge-pdf'">
+                <i class="fas fa-object-group tool-icon"></i>
+                <h3 class="tool-title">Merge PDF</h3>
+                <p class="tool-description">Combine multiple PDF files into one document.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/compress-pdf'">
+                <i class="fas fa-compress tool-icon"></i>
+                <h3 class="tool-title">Compress PDF</h3>
+                <p class="tool-description">Reduce PDF file size while maintaining quality.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/protect-pdf'">
+                <i class="fas fa-lock tool-icon"></i>
+                <h3 class="tool-title">Protect PDF</h3>
+                <p class="tool-description">Add password protection and encryption to PDF files.</p>
+            </div>
+            
+            <div class="tool-card" onclick="window.location.href='/remove-pdf-password'">
+                <i class="fas fa-unlock tool-icon"></i>
+                <h3 class="tool-title">Remove PDF Password</h3>
+                <p class="tool-description">Remove password protection from PDF documents.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        margin-top: 3rem;
+    }
+
+    .tool-card {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 3rem 2.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .tool-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .tool-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+        border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .tool-card:hover::before {
+        opacity: 1;
+    }
+
+    .tool-icon {
+        font-size: 3rem;
+        color: #00ff88;
+        margin-bottom: 2rem;
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .tool-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .tool-description {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+        line-height: 1.7;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %} 

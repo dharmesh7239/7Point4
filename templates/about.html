@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - 7.4 Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <h1 class="hero-title">About 7.4 Solutions</h1>
+        <p class="hero-subtitle">Empowering creators with professional image editing tools since 2024</p>
+    </section>
+
+    <section style="margin: 4rem 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+            <div>
+                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Our Mission</h2>
+                <p style="color: #b0b0b0; line-height: 1.8; margin-bottom: 1.5rem;">
+                    At 7.4 Solutions, we believe that powerful image editing tools should be accessible to everyone. 
+                    Whether you're a professional photographer, a social media enthusiast, or just someone who wants 
+                    to enhance their photos, our platform provides the tools you need to create stunning images.
+                </p>
+                <p style="color: #b0b0b0; line-height: 1.8; margin-bottom: 1.5rem;">
+                    Our commitment to privacy, security, and user experience drives everything we do. 
+                    We process all images locally, ensuring your data never leaves your device.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 2rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #00d4ff; margin-bottom: 0.5rem;">1M+</div>
+                        <div style="color: #b0b0b0;">Images Processed</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #00d4ff; margin-bottom: 0.5rem;">50K+</div>
+                        <div style="color: #b0b0b0;">Happy Users</div>
+                    </div>
+                </div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 3rem; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <h3 style="margin-bottom: 2rem; color: #00d4ff;">Why Choose Us?</h3>
+                <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-shield-alt" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">100% Secure</h4>
+                        <p style="color: #b0b0b0; font-size: 0.9rem;">Your images are processed locally and never uploaded to our servers</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-bolt" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">Lightning Fast</h4>
+                        <p style="color: #b0b0b0; font-size: 0.9rem;">Advanced algorithms ensure quick processing times</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-mobile-alt" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">Mobile Friendly</h4>
+                        <p style="color: #b0b0b0; font-size: 0.9rem;">Works perfectly on all devices and screen sizes</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-heart" style="color: #00d4ff; font-size: 1.5rem; margin-right: 1rem;"></i>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;">Free Forever</h4>
+                        <p style="color: #b0b0b0; font-size: 0.9rem;">All our tools are completely free to use</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="margin: 4rem 0;">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Our Tools</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-compress-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Image Compression</h3>
+                <p style="color: #b0b0b0;">Reduce file sizes while maintaining quality for faster web loading</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-expand-arrows-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Image Resizing</h3>
+                <p style="color: #b0b0b0;">Resize images to any dimension with precision and quality</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-exchange-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Format Conversion</h3>
+                <p style="color: #b0b0b0;">Convert between JPG, PNG, WebP, and other popular formats</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-crop-alt" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Image Cropping</h3>
+                <p style="color: #b0b0b0;">Crop images to any aspect ratio or custom dimensions</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-redo" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Image Rotation</h3>
+                <p style="color: #b0b0b0;">Rotate images by any angle to correct orientation</p>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center;">
+                <i class="fas fa-stamp" style="font-size: 3rem; color: #00d4ff; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Watermarking</h3>
+                <p style="color: #b0b0b0;">Add text or image watermarks to protect your content</p>
+            </div>
+        </div>
+    </section>
+
+    <section style="margin: 4rem 0; text-align: center;">
+        <h2 style="font-size: 2.5rem; margin-bottom: 2rem; background: linear-gradient(45deg, #00d4ff, #0099cc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Join Our Community</h2>
+        <p style="color: #b0b0b0; font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Be part of our growing community of creators, designers, and photography enthusiasts. 
+            Share your feedback, suggest new features, and help us improve our tools.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+            <a href="/contact" class="btn">Get in Touch</a>
+            <a href="#" class="btn-secondary">Follow Us</a>
+        </div>
+        <div style="margin-top: 2.5rem; color: #b0b0b0; font-size: 1.1rem;">
+            <div style="margin-bottom: 0.7rem;">
+                <i class="fas fa-envelope" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                <span>Email: <a href="mailto:support@7.4solutions.com" style="color: #00d4ff; text-decoration: underline;">support@7.4solutions.com</a></span>
+            </div>
+            <div style="margin-bottom: 0.7rem;">
+                <i class="fas fa-clock" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                <span>Response Time: Within 24 hours</span>
+            </div>
+            <div style="margin-bottom: 0.7rem;">
+                <i class="fas fa-globe" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                <span>Website: <a href="https://www.7.4solutions.com" target="_blank" style="color: #00d4ff; text-decoration: underline;">www.7.4solutions.com</a></span>
+            </div>
+            <div>
+                <i class="fas fa-map-marker-alt" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                <span>Location: Global - Remote Team</span>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %} 

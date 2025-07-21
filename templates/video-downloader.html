@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% block title %}Video Downloader - 7.4 Solutions{% endblock %}
+{% block content %}
+<div class="container" style="max-width:600px;margin:2rem auto 3rem auto;">
+  <section class="hero-section">
+    <h1 class="hero-title">Video Downloader</h1>
+    <p class="hero-subtitle">Download videos from YouTube, Instagram Reels, Facebook, Twitter, and YouTube Shorts in all available sizes.</p>
+  </section>
+  <div style="background:rgba(255,255,255,0.05);border-radius:18px;padding:2.5rem 2rem 2rem 2rem;box-shadow:0 8px 32px 0 rgba(0,0,0,0.13);">
+    <form id="video-fetch-form" style="display:flex;flex-direction:column;gap:1.2rem;">
+      <input type="url" id="video-link" class="form-control" placeholder="Paste video link here (YouTube, Instagram, Facebook, Twitter, Shorts)" required style="padding:1rem;font-size:1.1rem;border-radius:8px;border:1.5px solid #00d4ff;background:rgba(0,212,255,0.07);color:#fff;">
+      <button type="submit" class="btn" style="width:100%;font-size:1.1rem;">Fetch Video</button>
+    </form>
+    <div id="video-formats-section" style="margin-top:2.5rem;display:none;">
+      <div class="video-dashboard-card">
+        <div class="video-info">
+          <img id="video-thumb" src="" alt="Video thumbnail" class="video-thumb" />
+          <div class="video-title" id="video-title"></div>
+          <div class="video-duration" id="video-duration"></div>
+        </div>
+        <div class="video-formats-list" id="video-formats-list" style="flex:1;display:flex;flex-direction:column;gap:1.2rem;justify-content:flex-start;">
+          <select id="video-format-select" class="form-control" style="width:100%;margin-bottom:1.2rem;"></select>
+          <button id="video-download-btn" class="btn" style="font-size:1.1rem;width:100%;">Download</button>
+          <div id="download-progress-container" style="display:none;margin-top:1.2rem;width:100%;">
+            <div style="background:rgba(0,212,255,0.08);border-radius:8px;height:18px;width:100%;overflow:hidden;">
+              <div id="download-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#0077ff);transition:width 0.2s;"></div>
+            </div>
+            <div style="margin-top:0.4rem;font-size:0.97rem;color:#00d4ff;text-align:right;">
+              <span id="download-progress-text"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="video-error-message" style="color:#ff4444;font-weight:600;margin-top:1.5rem;display:none;"></div>
+  </div>
+</div>
+<style>
+.custom-dropdown {
+  background: #181c24;
+  color: #fff;
+  border: 1.5px solid #00d4ff;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+.custom-dropdown .selected {
+  padding: 0.7rem 1rem;
+  background: #181c24;
+  color: #fff;
+  border-radius: 8px;
+}
+.custom-dropdown .dropdown-list {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: #181c24;
+  border: 1.5px solid #00d4ff;
+  border-radius: 0 0 8px 8px;
+  z-index: 10;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.custom-dropdown.open .dropdown-list {
+  display: block;
+}
+.custom-dropdown .dropdown-item {
+  padding: 0.7rem 1rem;
+  color: #fff;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0,212,255,0.08);
+  background: #181c24;
+  transition: background 0.15s;
+}
+.custom-dropdown .dropdown-item:last-child {
+  border-bottom: none;
+}
+.custom-dropdown .dropdown-item:hover, .custom-dropdown .dropdown-item.selected {
+  background: #00d4ff;
+  color: #181c24;
+}
+.video-dashboard-card {
+  display: flex;
+  background: #181c24;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.13);
+  padding: 2rem 2rem 2rem 2rem;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+.video-info {
+  min-width: 180px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+.video-thumb {
+  width: 180px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px 0 rgba(0,212,255,0.13);
+}
+.video-title {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.2rem;
+}
+.video-duration {
+  color: #00d4ff;
+  font-size: 1rem;
+  text-align: center;
+}
+.video-formats-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  justify-content: flex-start;
+}
+.format-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #222;
+  border-radius: 10px;
+  padding: 1.1rem 1.5rem;
+  box-shadow: 0 2px 8px 0 rgba(0,212,255,0.07);
+}
+.format-label {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.format-download-btn {
+  background: linear-gradient(90deg, #00d4ff 0%, #0077ff 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.7rem;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 8px 0 rgba(0,212,255,0.13);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.format-download-btn:hover {
+  background: linear-gradient(90deg, #0077ff 0%, #00d4ff 100%);
+  box-shadow: 0 4px 16px 0 rgba(0,212,255,0.18);
+}
+#video-format-select.form-control {
+  background: #181c24;
+  color: #fff;
+  border: 1.5px solid #00d4ff;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  padding: 0.7rem 1rem;
+  box-shadow: none;
+  outline: none;
+  transition: border 0.2s;
+}
+#video-format-select.form-control:focus {
+  border: 1.5px solid #00d4ff;
+  background: #222;
+}
+#video-format-select option {
+  background: #181c24;
+  color: #fff;
+}
+@media (max-width: 700px) {
+  .video-dashboard-card { flex-direction: column; padding: 1.2rem 0.5rem; gap: 1.2rem; }
+  .video-info { min-width: 0; max-width: 100%; }
+  .video-thumb { width: 100%; height: 120px; }
+}
+</style>
+<script>
+function formatDuration(seconds) {
+  if (!seconds) return '';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `Duration: ${m}:${s.toString().padStart(2, '0')}`;
+}
+document.getElementById('video-fetch-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const link = document.getElementById('video-link').value.trim();
+  const formatsSection = document.getElementById('video-formats-section');
+  const errorDiv = document.getElementById('video-error-message');
+  const thumb = document.getElementById('video-thumb');
+  const titleDiv = document.getElementById('video-title');
+  const durationDiv = document.getElementById('video-duration');
+  const formatsList = document.getElementById('video-formats-list');
+  const formatSelect = document.getElementById('video-format-select');
+  formatsSection.style.display = 'none';
+  errorDiv.style.display = 'none';
+  errorDiv.textContent = '';
+  thumb.src = '';
+  titleDiv.textContent = '';
+  durationDiv.textContent = '';
+  formatSelect.innerHTML = '';
+  if (!link) return;
+  formatSelect.innerHTML = '<option>Loading...</option>';
+  try {
+    const resp = await fetch('/api/video-formats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: link })
+    });
+    if (!resp.ok) throw new Error('Failed to fetch video info');
+    const data = await resp.json();
+    if (!data.formats || !data.formats.length) throw new Error('No downloadable formats found.');
+    formatsSection.style.display = 'block';
+    thumb.src = data.thumbnail || '';
+    titleDiv.textContent = data.title || '';
+    durationDiv.textContent = formatDuration(data.duration);
+    formatSelect.innerHTML = '';
+    data.formats.forEach(fmt => {
+      const sizeMB = fmt.filesize ? (Math.round(fmt.filesize/1024/1024*10)/10)+' MB' : '?';
+      const opt = document.createElement('option');
+      opt.value = fmt.format_id;
+      opt.textContent = `${fmt.resolution}.mp4 (${sizeMB})`;
+      formatSelect.appendChild(opt);
+    });
+    document.getElementById('video-download-btn').onclick = async () => {
+      const selectedId = formatSelect.value;
+      if (!selectedId) return;
+      // Show progress bar
+      const progressContainer = document.getElementById('download-progress-container');
+      const progressBar = document.getElementById('download-progress-bar');
+      const progressText = document.getElementById('download-progress-text');
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressText.textContent = 'Starting download...';
+      try {
+        const resp = await fetch(`/api/video-download?url=${encodeURIComponent(link)}&format_id=${encodeURIComponent(selectedId)}`);
+        if (!resp.ok || !resp.body) throw new Error('Failed to download video.');
+        const contentLength = resp.headers.get('Content-Length');
+        const total = contentLength ? parseInt(contentLength) : null;
+        let received = 0;
+        let lastTime = Date.now();
+        let lastReceived = 0;
+        const reader = resp.body.getReader();
+        const chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          // Progress
+          if (total) {
+            const percent = Math.round(received / total * 100);
+            progressBar.style.width = percent + '%';
+            // Estimate time left
+            const now = Date.now();
+            const elapsed = (now - lastTime) / 1000;
+            if (elapsed > 0.5) {
+              const speed = (received - lastReceived) / elapsed; // bytes/sec
+              const remaining = total - received;
+              const secondsLeft = speed > 0 ? Math.round(remaining / speed) : '?';
+              progressText.textContent = `Downloaded ${Math.round(received/1024/1024*10)/10} MB / ${Math.round(total/1024/1024*10)/10} MB (${percent}%)` + (secondsLeft !== '?' ? ` - ~${secondsLeft}s left` : '');
+              lastTime = now;
+              lastReceived = received;
+            }
+          } else {
+            progressText.textContent = `Downloaded ${Math.round(received/1024/1024*10)/10} MB`;
+          }
+        }
+        // All done
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Download complete!';
+        // Create blob and download
+        const blob = new Blob(chunks);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (titleDiv.textContent || 'video') + '.mp4';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+      } catch (err) {
+        progressText.textContent = 'Download failed.';
+        progressBar.style.width = '0%';
+        setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+      }
+    };
+  } catch (err) {
+    errorDiv.style.display = 'block';
+    errorDiv.textContent = err.message || 'Failed to fetch video info.';
+    formatSelect.innerHTML = '';
+  }
+};
+</script>
+{% endblock %} 

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}7.4 Solutions{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-brand a {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #0a0a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0.75rem 0;
+            min-width: 300px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            list-style: none;
+        }
+
+        .dropdown-menu li {
+            list-style: none;
+        }
+
+        .nav-item:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 0 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #181818 0%, #222 100%);
+            color: #fff;
+            transform: scale(1.06);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Search Bar Styles */
+        .search-container {
+            min-width: 250px;
+            background: #111;
+            border-radius: 12px;
+            border: 1.5px solid #232323;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            display: flex;
+            align-items: center;
+            padding: 0;
+        }
+
+        .search-input {
+            background: #111;
+            border: none;
+            color: #fff;
+            font-size: 0.95rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            outline: none;
+            width: 100%;
+            box-shadow: none;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .search-input:focus {
+            background: #181818;
+            color: #fff;
+            border: 1.5px solid #00d4ff;
+            box-shadow: 0 0 0 2px rgba(0,212,255,0.10);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        .search-results::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .search-results.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .search-result-item:hover {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #0a0a0a;
+            transform: translateX(5px);
+        }
+
+        .search-result-item i {
+            width: 16px;
+            text-align: center;
+            color: #00d4ff;
+        }
+
+        .search-result-item:hover i {
+            color: #0a0a0a;
+        }
+
+        /* Hamburger Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background: #00d4ff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            line-height: 1.1;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 400;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #0a0a0a;
+            border: none;
+            padding: 1.25rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 1.25rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 255, 136, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem 1rem;
+            }
+            .nav-brand {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            .nav-menu {
+                width: 100%;
+                gap: 0.5rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 70px;
+                flex-direction: column;
+                background: #181818;
+                width: 100vw;
+                text-align: left;
+                transition: 0.3s;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                padding: 2rem 0 2rem 0;
+                z-index: 2000;
+                min-height: 100vh;
+                align-items: flex-start;
+            }
+            .nav-menu.active {
+                left: 0;
+            }
+            .nav-item, .nav-link, .dropdown-toggle {
+                width: 100%;
+                display: block;
+                text-align: left;
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: #232323;
+                margin-top: 0.5rem;
+                border: 1px solid #232323;
+                border-radius: 0 0 16px 16px;
+                min-width: 100vw;
+                box-shadow: none;
+                padding: 0.5rem 0;
+            }
+            .dropdown-item {
+                width: 100%;
+                padding: 1.1rem 2.5rem;
+                font-size: 1.08rem;
+                border-radius: 0;
+                background: none;
+            }
+            .dropdown-item:hover {
+                background: #181818;
+                color: #fff;
+                transform: none;
+                box-shadow: none;
+            }
+            .search-container {
+                width: 100%;
+                margin: 0.5rem 0 1.2rem 0;
+                border-radius: 12px;
+                padding: 0 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">7.4 Solutions</a>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <div class="search-container">
+                    <input type="text" id="toolSearch" placeholder="Search tools..." class="search-input">
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle">Image Tools <i class="fas fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/compress" class="dropdown-item"><i class="fas fa-compress"></i> Compress Images</a></li>
+                    <li><a href="/resize" class="dropdown-item"><i class="fas fa-expand-arrows-alt"></i> Resize Images</a></li>
+                    <li><a href="/convert" class="dropdown-item"><i class="fas fa-exchange-alt"></i> Convert Images</a></li>
+                    <li><a href="/crop" class="dropdown-item"><i class="fas fa-crop"></i> Crop Images</a></li>
+                    <li><a href="/rotate" class="dropdown-item"><i class="fas fa-redo"></i> Rotate Images</a></li>
+                    <li><a href="/watermark" class="dropdown-item"><i class="fas fa-stamp"></i> Add Watermark</a></li>
+                    <li><a href="/background-remover" class="dropdown-item"><i class="fas fa-cut"></i> Background Remover</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle">PDF Tools <i class="fas fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/edit-pdf" class="dropdown-item"><i class="fas fa-edit"></i> Edit PDF</a></li>
+                    <li><a href="/pdf-to-word" class="dropdown-item"><i class="fas fa-file-word"></i> PDF to Word</a></li>
+                    <li><a href="/word-to-pdf" class="dropdown-item"><i class="fas fa-file-pdf"></i> Word to PDF</a></li>
+                    <li><a href="/images-to-pdf" class="dropdown-item"><i class="fas fa-images"></i> Images to PDF</a></li>
+                    <li><a href="/merge-pdf" class="dropdown-item"><i class="fas fa-object-group"></i> Merge PDF</a></li>
+                    <li><a href="/compress-pdf" class="dropdown-item"><i class="fas fa-compress"></i> Compress PDF</a></li>
+                    <li><a href="/protect-pdf" class="dropdown-item"><i class="fas fa-lock"></i> Protect PDF</a></li>
+                    <li><a href="/remove-pdf-password" class="dropdown-item"><i class="fas fa-unlock"></i> Remove PDF Password</a></li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="/video-downloader" class="nav-link">Video Downloader</a>
+            </li>
+            <li class="nav-item">
+                <a href="/ai-tools" class="nav-link" style="position: relative;">
+                    AI Corner
+                    <span style="position: absolute; top: -8px; right: -8px; background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);">NEW</span>
+                </a>
+            </li>
+        </ul>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+        <div style="width: 100%; background: rgba(0, 255, 136, 0.1); color: #00ff88; text-align: center; font-weight: 700; font-size: 1rem; padding: 0.1rem 2rem; border-bottom: 1px solid rgba(0, 255, 136, 0.2); backdrop-filter: blur(10px); margin-bottom: 0; box-shadow: 0 4px 16px 0 rgba(0,255,136,0.07); position: relative; z-index: 2;">
+        ⚡ Free • No Sign-Up Required 
+    </div>
+    <div style="height: 0.5rem; background: linear-gradient(to bottom, rgba(0,255,136,0.12), rgba(0,0,0,0)); margin: 0; padding: 0; border: none; position: relative; z-index: 1;"></div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="background: rgba(10, 10, 10, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 0; margin-top: 4rem; backdrop-filter: blur(10px);">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="color: rgba(255, 255, 255, 0.6); margin: 0; font-size: 0.9rem; font-weight: 500;">&copy; 2025 7.4 Solutions. All rights reserved.</p>
+            </div>
+            <div style="display: flex; gap: 2rem;">
+                <a href="/about" style="color: #e2e8f0; text-decoration: none; transition: color 0.3s ease; font-size: 0.9rem; font-weight: 600;">About</a>
+                <a href="/contact" style="color: #e2e8f0; text-decoration: none; transition: color 0.3s ease; font-size: 0.9rem; font-weight: 600;">Contact</a>
+                <a href="/privacy" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease; font-size: 0.9rem; font-weight: 500;">Privacy</a>
+                <a href="/terms" style="color: rgba(255, 255, 255, 0.6); text-decoration: none; transition: color 0.3s ease; font-size: 0.9rem; font-weight: 500;">Terms</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }));
+
+        // Search functionality
+        const searchInput = document.getElementById('toolSearch');
+        const searchResults = document.getElementById('searchResults');
+
+        // Define all available tools (excluding AI Corner)
+        const allTools = [
+            { name: 'Compress Images', url: '/compress', icon: 'fas fa-compress', category: 'Image Tools' },
+            { name: 'Resize Images', url: '/resize', icon: 'fas fa-expand-arrows-alt', category: 'Image Tools' },
+            { name: 'Convert Images', url: '/convert', icon: 'fas fa-exchange-alt', category: 'Image Tools' },
+            { name: 'Crop Images', url: '/crop', icon: 'fas fa-crop', category: 'Image Tools' },
+            { name: 'Rotate Images', url: '/rotate', icon: 'fas fa-redo', category: 'Image Tools' },
+            { name: 'Add Watermark', url: '/watermark', icon: 'fas fa-stamp', category: 'Image Tools' },
+            { name: 'Background Remover', url: '/background-remover', icon: 'fas fa-cut', category: 'Image Tools' },
+            { name: 'Edit PDF', url: '/edit-pdf', icon: 'fas fa-edit', category: 'PDF Tools' },
+            { name: 'PDF to Word', url: '/pdf-to-word', icon: 'fas fa-file-word', category: 'PDF Tools' },
+            { name: 'Word to PDF', url: '/word-to-pdf', icon: 'fas fa-file-pdf', category: 'PDF Tools' },
+            { name: 'Images to PDF', url: '/images-to-pdf', icon: 'fas fa-images', category: 'PDF Tools' },
+            { name: 'Merge PDF', url: '/merge-pdf', icon: 'fas fa-object-group', category: 'PDF Tools' },
+            { name: 'Compress PDF', url: '/compress-pdf', icon: 'fas fa-compress', category: 'PDF Tools' },
+            { name: 'Protect PDF', url: '/protect-pdf', icon: 'fas fa-lock', category: 'PDF Tools' },
+            { name: 'Remove PDF Password', url: '/remove-pdf-password', icon: 'fas fa-unlock', category: 'PDF Tools' },
+            { name: 'Video Downloader', url: '/video-downloader', icon: 'fas fa-download', category: 'Video Tools' }
+        ];
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            if (query.length < 2) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            const filteredTools = allTools.filter(tool => 
+                tool.name.toLowerCase().includes(query) || 
+                tool.category.toLowerCase().includes(query)
+            );
+
+            if (filteredTools.length > 0) {
+                searchResults.innerHTML = filteredTools.map(tool => `
+                    <a href="${tool.url}" class="search-result-item">
+                        <i class="${tool.icon}"></i>
+                        <span>${tool.name}</span>
+                    </a>
+                `).join('');
+                searchResults.classList.add('active');
+            } else {
+                searchResults.innerHTML = '<div class="search-result-item" style="color: rgba(255,255,255,0.6);">No tools found</div>';
+                searchResults.classList.add('active');
+            }
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Close search results when pressing Escape
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchResults.classList.remove('active');
+                this.blur();
+            }
+        });
+
+        // Apply new styles for nav-link and dropdown-toggle
+        document.querySelectorAll('.nav-link, .dropdown-toggle').forEach(el => {
+            el.style.background = '#111';
+            el.style.color = '#fff !important';
+            el.style.border = '1.5px solid #232323';
+            el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+        });
+
+        document.querySelectorAll('.nav-link[style], .nav-link').forEach(el => {
+            el.style.background = '#111 !important';
+            el.style.color = '#fff !important';
+            el.style.border = '1.5px solid #232323 !important';
+        });
+
+        document.querySelectorAll('.nav-link:hover, .dropdown-toggle:hover').forEach(el => {
+            el.style.background = 'linear-gradient(135deg, #181818 0%, #222 100%) !important';
+            el.style.color = '#fff !important';
+            el.style.boxShadow = '0 4px 18px rgba(0,0,0,0.18) !important';
+            el.style.transform = 'scale(1.06)';
+        });
+    </script>
+</body>
+</html> 
