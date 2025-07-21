@@ -427,7 +427,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.18s, color 0.18s, border 0.18s;
-  outline: none;
+    outline: none;
   min-width: 44px;
   box-shadow: none;
 }
@@ -686,7 +686,7 @@ function renderAIToolsPage(page) {
   // Pagination: only 4 page numbers at a time (centered on current page), ellipsis before/after, no always page 1/last
   if (totalPages > 1) {
     const createBtn = (text, active, disabled, onClick) => {
-      const btn = document.createElement('button');
+    const btn = document.createElement('button');
       btn.className = 'pagination-btn' + (active ? ' active' : '') + (disabled ? ' disabled' : '');
       btn.textContent = text;
       btn.disabled = !!disabled;
